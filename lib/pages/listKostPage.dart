@@ -19,28 +19,20 @@ class _ListKostPageState extends State<ListKostPage> {
   @override
   void initState() {
     super.initState();
+    searchController.text = widget.searchQuery ?? "";
     _fetchData();
   }
 
   void _fetchData() {
     setState(() {
-      if (widget.searchQuery != null && widget.searchQuery!.isNotEmpty) {
-        searchController.text = widget.searchQuery!;
-        futureKamars = apiService.searchKost(widget.searchQuery!);
-      } else {
-        futureKamars = apiService.fetchKamars();
-      }
+      futureKamars = searchController.text.isEmpty
+          ? apiService.fetchKamars()
+          : apiService.searchKost(searchController.text);
     });
-  }
-
-  Future<void> _refreshData() async {
-    _fetchData();
   }
 
   void _searchKost() {
-    setState(() {
-      futureKamars = apiService.searchKost(searchController.text);
-    });
+    _fetchData();
   }
 
   @override
@@ -50,62 +42,54 @@ class _ListKostPageState extends State<ListKostPage> {
         title: const Text("Daftar Kost"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Masukkan nama kos/kota',
-                border: OutlineInputBorder(
-                  borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 12.0, horizontal: 16.0),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: _searchKost,
-                ),
-              ),
-              onSubmitted: (value) => _searchKost(),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _refreshData,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: FutureBuilder<List<dynamic>>(
-                    future: futureKamars,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: const Center(child: CircularProgressIndicator()),
-                        );
-                      } else if (snapshot.hasError) {
-                        return const Center(child: Text("Gagal memuat data kamar"));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: const Center(child: Text("Tidak ada kamar tersedia")),
-                        );
-                      }
-
-                      return GridListView(kamars: snapshot.data!);
-                    },
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: 'Masukkan nama kos/kota',
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 12.0, horizontal: 16.0),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: _searchKost,
                   ),
                 ),
+                onSubmitted: (_) => _searchKost(),
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              FutureBuilder<List<dynamic>>(
+                future: futureKamars,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text("Gagal memuat data kamar"));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: const Center(child: Text("Tidak ada kamar tersedia")),
+                    );
+                  }
+                  return GridListView(kamars: snapshot.data!);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

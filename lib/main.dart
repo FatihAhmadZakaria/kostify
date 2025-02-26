@@ -4,6 +4,7 @@ import 'package:kostify/utility/splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  print("Aplikasi Dimulai");
   runApp(MyApp());
 }
 

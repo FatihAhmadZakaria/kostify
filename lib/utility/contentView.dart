@@ -57,13 +57,21 @@ class HorizontalCityListView extends StatelessWidget {
 
           return GestureDetector(
             onTap: () {
-              // Navigasi ke ListKostPage dengan searchQuery sesuai nama kota
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ListKostPage(searchQuery: cityName),
-                ),
-              );
+              if (cityName == "Lihat Semua") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ListKostPage(searchQuery: ""),
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ListKostPage(searchQuery: cityName),
+                  ),
+                );
+              }
             },
             child: Container(
               width: 200,

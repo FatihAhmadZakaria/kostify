@@ -64,7 +64,7 @@ class _DetailKostPageState extends State<DetailKostPage> {
   void _openWhatsApp(String phoneNumber) async {
     // Pastikan nomor dalam format internasional
     if (!phoneNumber.startsWith("62")) {
-      phoneNumber = "62" + phoneNumber.substring(1);
+      phoneNumber = "62${phoneNumber.substring(1)}";
     }
 
     String message = "Halo, apakah kost ${widget.namaKost} masih tersedia?";

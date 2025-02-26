@@ -30,7 +30,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final TextEditingController _promoController = TextEditingController();
 
   int biayaAdmin = 2000;
-  int points = 0;
+  String points = "0";
   int pointsValue = 2000;
   bool usePoints = false;
   int discount = 0;
@@ -60,7 +60,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (!mounted) return; // Cegah error jika widget sudah di dispose
     setState(() {
       userId = prefs.getInt("user_id") ?? 0;
-      points = prefs.getInt("credit") ?? 0;
+      points = prefs.getString("credit") ?? "0";
     });
   }
 
@@ -106,7 +106,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     int totalHarga = (widget.selectedDuration ?? 1) * hargaKost + biayaAdmin;
     if (usePoints) {
-      totalHarga -= (points * pointsValue);
+      totalHarga -= (int.tryParse(points) ?? 0) * pointsValue;
     }
     totalHarga = totalHarga < 0 ? 0 : totalHarga;
 
@@ -162,7 +162,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     int totalHarga = (widget.selectedDuration ?? 1) * hargaKost;
-    int totalPotongan = discount + (usePoints ? points * pointsValue : 0);
+    int totalPotongan =
+        discount + (usePoints ? (int.tryParse(points) ?? 0) * pointsValue : 0);
     int totalBayar = totalHarga + biayaAdmin - totalPotongan;
     if (totalBayar < 0) totalBayar = 0;
 
